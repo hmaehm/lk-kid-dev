@@ -44,20 +44,39 @@ layarkaca-kid/
 
 ---
 
-## How to Build the Extension (.cs3)
+## How to Build Locally and Host on GitHub
 
-Run the following command in your terminal from the repository root:
+This repository is configured so you can build the `.cs3` extension file locally on your Mac, and host the extension on GitHub so Cloudstream can install and update it directly via URL.
 
+### 1. Build the Extension Locally
+From the root of your project:
 ```bash
 ./gradlew make
 ```
-Or:
+*(Produces `build/layarkaca-kid-dev.cs3`)*
+
+### 2. Prepare the Release
+Run the helper script:
 ```bash
-./gradlew build
+python3 publish_local_build.py
+# Or to bump the version number:
+python3 publish_local_build.py --bump
+```
+This copies the `.cs3` file to the root and synchronizes `plugins.json`.
+
+### 3. Commit and Push to GitHub (You do this yourself)
+```bash
+git add layarkaca-kid-dev.cs3 plugins.json repo.json .gitignore
+git commit -m "release: update extension build"
+git push origin master
 ```
 
-The generated `.cs3` plugin file will be located in:
-`build/layarkaca-kid-dev.cs3`
+### 4. Cloudstream In-App Repository URL
+Once pushed to GitHub, add this link in **Cloudstream (Settings > Extensions > Add Repository)**:
+```
+https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/repo.json
+```
+Cloudstream will automatically fetch the extension list and install/update `layarkaca-kid-dev.cs3` directly from your GitHub repository!
 
 ---
 

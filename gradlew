@@ -59,12 +59,16 @@ Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
     fi
 else
-    JAVACMD=java
-    which java >/dev/null 2>&1 || {
-        if [ -x "/Library/Java/JavaVirtualMachines/temurin-24.jdk/Contents/Home/bin/java" ]; then
-            JAVACMD="/Library/Java/JavaVirtualMachines/temurin-24.jdk/Contents/Home/bin/java"
+    for jdk in /Library/Java/JavaVirtualMachines/*/Contents/Home/bin/java; do
+        if [ -x "$jdk" ]; then
+            JAVACMD="$jdk"
+            export JAVA_HOME="${jdk%/bin/java}"
+            break
         fi
-    }
+    done
+    if [ -z "$JAVACMD" ]; then
+        JAVACMD=java
+    fi
 fi
 
 # Execute Gradle

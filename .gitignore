@@ -4,8 +4,9 @@
 *.ap_
 *.aab
 
-# Cloudstream builds
-*.cs3
+# Cloudstream builds (allow tracking release cs3 files)
+build/*.cs3
+!*.cs3
 
 # Files for the ART/Dalvik VM
 *.dex
