@@ -52,9 +52,5 @@ Icon
 # Log files
 *.log
 
-# Python
-__pycache__/
-*.pyc
-
 # Kotlin
 .kotlin/

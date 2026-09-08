@@ -1,8 +1,0 @@
-{
-  "name": "Layarkaca Kid Local Repo",
-  "description": "Local repository for LK21 extension",
-  "manifestVersion": 1,
-  "pluginLists": [
-    "http://172.16.17.151:8080/plugins.json"
-  ]
-}
