@@ -2,10 +2,10 @@
   {
     "name": "layarkaca-kid-dev",
     "internalName": "layarkaca-kid-dev",
-    "version": 1,
+    "version": 2,
     "apiVersion": 1,
-    "fileSize": 23915,
-    "fileHash": "sha256-e4645c50e253b1735960a6b9f8c565f67512e6b871a9dbbc29dfebc0efc9e5c3",
+    "fileSize": 24024,
+    "fileHash": "sha256-4d9801aa4c0c8693a7a64fd0256f2567527bd26b4778d361878f4de6184e9e1d",
     "repositoryUrl": "https://github.com/hmaehm/lk-kid-dev",
     "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
     "description": "LK21 movie and series extension with configurable domain settings",

@@ -43,17 +43,15 @@ def main():
     print(f"✅ Copied {os.path.basename(target_cs3)} -> layarkaca-kid-dev.cs3 ({file_size / 1024:.1f} KB)")
     print(f"🔑 SHA256: {sha256_hash}")
 
-    # Read existing version or bump
+    # Read version directly from manifest.json inside .cs3
+    import zipfile
     version = 1
-    if os.path.exists(PLUGINS_JSON):
-        try:
-            with open(PLUGINS_JSON, "r") as f:
-                data = json.load(f)
-            if isinstance(data, list) and len(data) > 0:
-                current_ver = data[0].get("version", 1)
-                version = current_ver + 1 if "--bump" in sys.argv else current_ver
-        except Exception:
-            pass
+    try:
+        with zipfile.ZipFile(ROOT_CS3) as z:
+            manifest_data = json.loads(z.read("manifest.json").decode("utf-8"))
+            version = manifest_data.get("version", 1)
+    except Exception:
+        pass
 
     plugin_entry = {
         "name": "layarkaca-kid-dev",
@@ -75,6 +73,10 @@ def main():
         json.dump([plugin_entry], f, indent=2)
 
     print(f"📦 Updated plugins.json (v{version}, status: 1)")
+
+    if "--purge" in sys.argv:
+        purge_jsdelivr()
+
     print()
     print("=" * 60)
     print("🎉 Release ready for GitHub!")
@@ -82,5 +84,21 @@ def main():
     print("👉 https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/repo.json")
     print("=" * 60)
 
+def purge_jsdelivr():
+    import urllib.request
+    print("🌐 Purging jsDelivr CDN cache...")
+    files = ["layarkaca-kid-dev.cs3", "plugins.json", "repo.json"]
+    for f in files:
+        url = f"https://purge.jsdelivr.net/gh/hmaehm/lk-kid-dev@master/{f}"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                print(f"  ✓ Purged {f} (HTTP {resp.status})")
+        except Exception as e:
+            print(f"  ⚠ Failed to purge {f}: {e}")
+
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) == 2 and sys.argv[1] == "--purge-only":
+        purge_jsdelivr()
+    else:
+        main()

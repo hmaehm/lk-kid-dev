@@ -21,10 +21,15 @@ fun Project.cloudstream(configuration: com.lagradost.cloudstream3.gradle.Cloudst
 fun Project.android(configuration: com.android.build.gradle.BaseExtension.() -> Unit) =
     extensions.getByName<com.android.build.gradle.BaseExtension>("android").configuration()
 
-version = 1
+version = 2
 
 cloudstream {
     setRepo("https://github.com/hmaehm/lk-kid-dev")
+    description = "LK21 movie and series extension with configurable domain settings"
+    authors = listOf("hmaehm")
+    status = 1
+    tvTypes = listOf("Movie", "TvSeries")
+    language = "id"
 }
 
 android {

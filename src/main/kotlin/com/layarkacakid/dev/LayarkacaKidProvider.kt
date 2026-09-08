@@ -9,10 +9,15 @@ import org.jsoup.nodes.Element
 object LayarkacaKidStorage {
     private const val PREFS_NAME = "layarkaca_kid_prefs"
     private const val KEY_DOMAIN = "lk21_custom_domain"
+    private var appContext: android.content.Context? = null
     private var memoryDomain: String? = null
 
+    fun init(context: android.content.Context) {
+        appContext = context.applicationContext ?: context
+    }
+
     private fun getContext(): android.content.Context? {
-        return try {
+        return appContext ?: try {
             val activityThread = Class.forName("android.app.ActivityThread")
             val method = activityThread.getMethod("currentApplication")
             method.invoke(null) as? android.content.Context
