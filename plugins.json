@@ -1,22 +1,22 @@
 [
   {
-    "name": "Layarkaca Kid Dev",
+    "name": "layarkaca-kid-dev",
     "internalName": "layarkaca-kid-dev",
-    "pluginClassName": "com.layarkacakid.dev.LayarkacaKidPlugin",
     "version": 1,
-    "status": 1,
     "apiVersion": 1,
     "fileSize": 20056,
     "fileHash": "sha256-e5ebfa999fe86a3b43386bacf48d155036287e2bd509ddbc7c259ac5466fbbd3",
-    "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
     "repositoryUrl": "https://github.com/hmaehm/lk-kid-dev",
+    "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
+    "description": "LK21 movie and series extension with configurable domain settings",
     "authors": [
       "hmaehm"
     ],
-    "description": "LK21 movie and series extension with configurable domain settings",
     "tvTypes": [
       "Movie",
       "TvSeries"
-    ]
+    ],
+    "language": "id",
+    "status": 1
   }
 ]
