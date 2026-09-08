@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plugin_name">Layarkaca Kid Dev</string>
+    <string name="domain_settings_title">LK21 Domain Settings</string>
+    <string name="domain_settings_summary">Set custom domain or mirror for LayarKaca21</string>
+    <string name="domain_edit_hint">https://tv12.lk21official.cc</string>
+</resources>
