@@ -56,19 +56,19 @@ def main():
             pass
 
     plugin_entry = {
-        "name": "Layarkaca Kid Dev",
+        "name": "layarkaca-kid-dev",
         "internalName": "layarkaca-kid-dev",
-        "pluginClassName": "com.layarkacakid.dev.LayarkacaKidPlugin",
         "version": version,
-        "status": 1,
         "apiVersion": 1,
         "fileSize": file_size,
         "fileHash": f"sha256-{sha256_hash}",
-        "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
         "repositoryUrl": "https://github.com/hmaehm/lk-kid-dev",
-        "authors": ["hmaehm"],
+        "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
         "description": "LK21 movie and series extension with configurable domain settings",
-        "tvTypes": ["Movie", "TvSeries"]
+        "authors": ["hmaehm"],
+        "tvTypes": ["Movie", "TvSeries"],
+        "language": "id",
+        "status": 1
     }
 
     with open(PLUGINS_JSON, "w") as f:
