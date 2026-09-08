@@ -1,10 +1,10 @@
 package com.layarkacakid.dev.extractors
 
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.Qualities
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.Jsoup
 
 open class DadadidiExtractor : ExtractorApi() {
@@ -26,19 +26,19 @@ open class DadadidiExtractor : ExtractorApi() {
         val doc = Jsoup.parse(res)
 
         // Find direct download or stream anchors
-        doc.select("a[href*=.mp4], a[href*=.m3u8], a.btn-download, a[href*=/download/]").forEach { link ->
+        for (link in doc.select("a[href*=.mp4], a[href*=.m3u8], a.btn-download, a[href*=/download/]")) {
             val href = link.attr("abs:href").ifEmpty { link.attr("href") }
             if (href.isNotBlank()) {
                 val quality = link.text().trim()
                 callback.invoke(
-                    ExtractorLink(
+                    newExtractorLink(
                         source = name,
                         name = "$name $quality".trim(),
                         url = href,
-                        referer = url,
-                        quality = Qualities.Unknown.value,
-                        isM3u8 = href.contains(".m3u8")
-                    )
+                        type = if (href.contains(".m3u8")) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                    ) {
+                        this.referer = url
+                    }
                 )
             }
         }

@@ -1,10 +1,10 @@
 package com.layarkacakid.dev.extractors
 
-import com.lagradost.cloudstream3.SubtitleFile
-import com.lagradost.cloudstream3.app
+import com.lagradost.cloudstream3.*
 import com.lagradost.cloudstream3.utils.ExtractorApi
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import com.lagradost.cloudstream3.utils.Qualities
+import com.lagradost.cloudstream3.utils.ExtractorLinkType
+import com.lagradost.cloudstream3.utils.newExtractorLink
 
 open class VideonodeExtractor : ExtractorApi() {
     override val name = "Videonode"
@@ -26,18 +26,18 @@ open class VideonodeExtractor : ExtractorApi() {
 
         // Match direct m3u8 or mp4 links in scripts / configs
         val mediaRegex = Regex("""(?:file|source|src)\s*:\s*["']([^"']+\.(?:m3u8|mp4)[^"']*)["']""")
-        mediaRegex.findAll(res).forEach { match ->
+        for (match in mediaRegex.findAll(res)) {
             val videoUrl = match.groupValues[1]
             val isM3u8 = videoUrl.contains(".m3u8")
             callback.invoke(
-                ExtractorLink(
+                newExtractorLink(
                     source = name,
                     name = name,
                     url = videoUrl,
-                    referer = url,
-                    quality = Qualities.Unknown.value,
-                    isM3u8 = isM3u8
-                )
+                    type = if (isM3u8) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO
+                ) {
+                    this.referer = url
+                }
             )
         }
     }

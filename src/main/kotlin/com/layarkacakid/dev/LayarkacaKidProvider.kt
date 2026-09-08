@@ -1,16 +1,50 @@
 package com.layarkacakid.dev
 
 import com.lagradost.cloudstream3.*
-import com.lagradost.cloudstream3.AcraApplication.Companion.getKey
-import com.lagradost.cloudstream3.AcraApplication.Companion.setKey
 import com.lagradost.cloudstream3.utils.ExtractorLink
 import com.lagradost.cloudstream3.utils.loadExtractor
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
+object LayarkacaKidStorage {
+    private const val PREFS_NAME = "layarkaca_kid_prefs"
+    private const val KEY_DOMAIN = "lk21_custom_domain"
+    private var memoryDomain: String? = null
+
+    private fun getContext(): android.content.Context? {
+        return try {
+            val activityThread = Class.forName("android.app.ActivityThread")
+            val method = activityThread.getMethod("currentApplication")
+            method.invoke(null) as? android.content.Context
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun getDomain(): String {
+        return memoryDomain ?: try {
+            val ctx = getContext()
+            val prefs = ctx?.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            prefs?.getString(KEY_DOMAIN, null) ?: LayarkacaKidProvider.DEFAULT_DOMAIN
+        } catch (e: Exception) {
+            LayarkacaKidProvider.DEFAULT_DOMAIN
+        }
+    }
+
+    fun setDomain(domain: String) {
+        memoryDomain = domain
+        try {
+            val ctx = getContext()
+            val prefs = ctx?.getSharedPreferences(PREFS_NAME, android.content.Context.MODE_PRIVATE)
+            prefs?.edit()?.putString(KEY_DOMAIN, domain)?.apply()
+        } catch (e: Exception) {
+            // Ignored
+        }
+    }
+}
+
 class LayarkacaKidProvider : MainAPI() {
     companion object {
-        const val PREF_DOMAIN_KEY = "lk21_custom_domain"
         const val DEFAULT_DOMAIN = "https://tv12.lk21official.cc"
         const val ALT_DOMAIN = "https://lk21.de"
         const val DRAMA_DOMAIN = "https://dramamu.lk21.de"
@@ -22,9 +56,9 @@ class LayarkacaKidProvider : MainAPI() {
     override val supportedTypes = setOf(TvType.Movie, TvType.TvSeries, TvType.AsianDrama)
 
     override var mainUrl: String
-        get() = getKey<String>(PREF_DOMAIN_KEY)?.takeIf { it.isNotBlank() } ?: DEFAULT_DOMAIN
+        get() = LayarkacaKidStorage.getDomain()
         set(value) {
-            setKey(PREF_DOMAIN_KEY, value)
+            LayarkacaKidStorage.setDomain(value)
         }
 
     override val mainPage = mainPageOf(
@@ -109,12 +143,12 @@ class LayarkacaKidProvider : MainAPI() {
                 if (isSeries) {
                     items.add(newTvSeriesSearchResponse(title, href, TvType.TvSeries) {
                         this.posterUrl = poster
-                        addRating(rating)
+                        this.score = Score.from10(rating)
                     })
                 } else {
                     items.add(newMovieSearchResponse(title, href, TvType.Movie) {
                         this.posterUrl = poster
-                        addRating(rating)
+                        this.score = Score.from10(rating)
                     })
                 }
             }
@@ -171,7 +205,7 @@ class LayarkacaKidProvider : MainAPI() {
         val year = doc.selectFirst("a[href*='/year/']")?.text()?.trim()?.toIntOrNull()
         val rating = doc.selectFirst(".rating, .score")?.text()?.trim()
         val tags = doc.select("a[href*='/genre/']").map { it.text().trim() }
-        val actors = doc.select("a[href*='/artist/']").map { it.text().trim() }
+        val actors = doc.select("a[href*='/artist/']").map { ActorData(Actor(it.text().trim())) }
 
         val isSeries = currentUrl.contains("dramamu") ||
                 currentUrl.contains("nontondrama") ||
@@ -207,7 +241,7 @@ class LayarkacaKidProvider : MainAPI() {
                 this.plot = plot
                 this.tags = tags
                 this.actors = actors
-                addRating(rating)
+                this.score = Score.from10(rating)
             }
         }
 
@@ -217,7 +251,7 @@ class LayarkacaKidProvider : MainAPI() {
             this.plot = plot
             this.tags = tags
             this.actors = actors
-            addRating(rating)
+            this.score = Score.from10(rating)
         }
     }
 
@@ -256,7 +290,7 @@ class LayarkacaKidProvider : MainAPI() {
         return playerLinks.isNotEmpty()
     }
 
-    override fun fixUrl(url: String): String {
+    fun fixUrl(url: String): String {
         if (url.startsWith("//")) {
             return "https:$url"
         }
