@@ -3,6 +3,6 @@
   "description": "LK21 extension repository",
   "manifestVersion": 1,
   "pluginLists": [
-    "https://cdn.jsdelivr.net/gh/hmaehm/lk-kid-dev@master/plugins.json"
+    "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/plugins.json"
   ]
 }

@@ -2,6 +2,7 @@
 import os
 import shutil
 import json
+import hashlib
 import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -9,13 +10,18 @@ BUILD_CS3 = os.path.join(BASE_DIR, "build", "layarkaca-kid-dev.cs3")
 ROOT_CS3 = os.path.join(BASE_DIR, "layarkaca-kid-dev.cs3")
 PLUGINS_JSON = os.path.join(BASE_DIR, "plugins.json")
 
+def get_sha256(filepath):
+    h = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        while chunk := f.read(8192):
+            h.update(chunk)
+    return h.hexdigest()
+
 def main():
-    # 1. Locate the built cs3 file
     target_cs3 = None
     if os.path.exists(BUILD_CS3):
         target_cs3 = BUILD_CS3
     else:
-        # Search for any .cs3 in build/
         build_dir = os.path.join(BASE_DIR, "build")
         if os.path.exists(build_dir):
             for root, _, files in os.walk(build_dir):
@@ -29,34 +35,51 @@ def main():
         print("   Please build the project first using: ./gradlew make")
         sys.exit(1)
 
-    # 2. Copy to repository root
+    # Copy to repository root
     shutil.copyfile(target_cs3, ROOT_CS3)
-    file_size_kb = os.path.getsize(ROOT_CS3) / 1024
-    print(f"✅ Copied {os.path.basename(target_cs3)} -> layarkaca-kid-dev.cs3 ({file_size_kb:.1f} KB)")
+    file_size = os.path.getsize(ROOT_CS3)
+    sha256_hash = get_sha256(ROOT_CS3)
 
-    # 3. Bump version in plugins.json if requested
-    bump = "--bump" in sys.argv
+    print(f"✅ Copied {os.path.basename(target_cs3)} -> layarkaca-kid-dev.cs3 ({file_size / 1024:.1f} KB)")
+    print(f"🔑 SHA256: {sha256_hash}")
+
+    # Read existing version or bump
+    version = 1
     if os.path.exists(PLUGINS_JSON):
-        with open(PLUGINS_JSON, "r") as f:
-            data = json.load(f)
-        if isinstance(data, list) and len(data) > 0:
-            current_ver = data[0].get("version", 1)
-            new_ver = current_ver + 1 if bump else current_ver
-            data[0]["version"] = new_ver
-            with open(PLUGINS_JSON, "w") as f:
-                json.dump(data, f, indent=2)
-            print(f"📦 Extension version in plugins.json: v{new_ver} (use --bump to increment)")
+        try:
+            with open(PLUGINS_JSON, "r") as f:
+                data = json.load(f)
+            if isinstance(data, list) and len(data) > 0:
+                current_ver = data[0].get("version", 1)
+                version = current_ver + 1 if "--bump" in sys.argv else current_ver
+        except Exception:
+            pass
 
+    plugin_entry = {
+        "name": "Layarkaca Kid Dev",
+        "internalName": "layarkaca-kid-dev",
+        "pluginClassName": "com.layarkacakid.dev.LayarkacaKidPlugin",
+        "version": version,
+        "status": 1,
+        "apiVersion": 1,
+        "fileSize": file_size,
+        "fileHash": f"sha256-{sha256_hash}",
+        "url": "https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/layarkaca-kid-dev.cs3",
+        "repositoryUrl": "https://github.com/hmaehm/lk-kid-dev",
+        "authors": ["hmaehm"],
+        "description": "LK21 movie and series extension with configurable domain settings",
+        "tvTypes": ["Movie", "TvSeries"]
+    }
+
+    with open(PLUGINS_JSON, "w") as f:
+        json.dump([plugin_entry], f, indent=2)
+
+    print(f"📦 Updated plugins.json (v{version}, status: 1)")
     print()
     print("=" * 60)
-    print("🎉 Local build is staged for GitHub!")
-    print("Cloudstream In-App Repository Link:")
+    print("🎉 Release ready for GitHub!")
+    print("Cloudstream In-App Repository URL:")
     print("👉 https://raw.githubusercontent.com/hmaehm/lk-kid-dev/master/repo.json")
-    print("=" * 60)
-    print("When ready, commit and push your changes yourself:")
-    print("   git add layarkaca-kid-dev.cs3 plugins.json")
-    print("   git commit -m 'release: update extension'")
-    print("   git push origin master")
     print("=" * 60)
 
 if __name__ == "__main__":
